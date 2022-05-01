@@ -1,6 +1,7 @@
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const express = require("express");
 const cors = require("cors");
+var jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const app = express();
@@ -21,26 +22,25 @@ const run = async () => {
   try {
     await client.connect();
 
-    const cursor = client.db("myVentory").collection("items");
+    const items = client.db("myVentory").collection("items");
 
     app.get("/items", async (req, res) => {
-      const items = await cursor.find({}).toArray();
+      const items = await items.find({}).toArray();
       res.send(items);
     });
 
+    // JWT TOKEN
+    app.post("/login", async (req, res) => {
+      const { email } = req.body;
+      const token = jwt.sign({ email }, process.env.SECRET, {
+        expiresIn: "1h",
+      });
+      res.send({ token });
+    });
+
     app.post("/items", async (req, res) => {
-      const { name, image, price, quantity, supplier, description, user } =
-        req.body;
-      const item = {
-        name,
-        image,
-        price,
-        quantity,
-        supplier,
-        description,
-        user,
-      };
-      await cursor.insertOne(item);
+      const item = req.body;
+      await items.insertOne(item);
       res.send(item);
     });
 
