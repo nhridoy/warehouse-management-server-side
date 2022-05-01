@@ -97,6 +97,17 @@ const run = async () => {
       }
     });
 
+    // MY ITEMS
+    app.get("/myitems", verifyToken, async (req, res) => {
+      const email = req.authData.email;
+      if (!email) {
+        res.sendStatus(403);
+      } else {
+        const myItems = await items.find({ email }).toArray();
+        res.send(myItems);
+      }
+    });
+
     // ADD ITEM
     app.post("/items", verifyToken, async (req, res) => {
       const email = req.authData.email;
