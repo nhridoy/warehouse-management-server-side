@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const express = require("express");
 const cors = require("cors");
 var jwt = require("jsonwebtoken");
@@ -51,7 +51,14 @@ const run = async () => {
       res.send({ token });
     });
 
-    // ALL ITEMS
+    // SINGLE ITEM
+    app.get("/items/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const item = await items.findOne({ _id: ObjectId(id) });
+      res.send(item);
+    });
+
+    // TOP ITEMS
     app.get("/topitems", async (req, res) => {
       const allItems = await items
         .find({})
