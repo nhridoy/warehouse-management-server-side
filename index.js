@@ -41,6 +41,7 @@ const run = async () => {
     await client.connect();
 
     const items = client.db("myVentory").collection("items");
+    const blogs = client.db("myVentory").collection("blogs");
 
     // JWT TOKEN
     app.post("/login", async (req, res) => {
@@ -131,6 +132,32 @@ const run = async () => {
         item.email = email;
         await items.insertOne(item);
         res.send(item);
+      }
+    });
+
+    // BLOGS
+    app.get("/blogs", async (req, res) => {
+      const allBlogs = await blogs.find({}).toArray();
+      res.send(allBlogs);
+    });
+
+    // SINGLE BLOG
+    app.get("/blogs/:id", async (req, res) => {
+      const { id } = req.params;
+      const blog = await blogs.findOne({ _id: ObjectId(id) });
+      res.send(blog);
+    });
+
+    // ADD BLOG
+    app.post("/blogs", verifyToken, async (req, res) => {
+      const email = req.authData.email;
+      if (!email) {
+        res.sendStatus(403);
+      } else {
+        const blog = req.body;
+        blog.email = email;
+        await blogs.insertOne(blog);
+        res.send(blog);
       }
     });
 
