@@ -65,6 +65,17 @@ const run = async () => {
       res.send(item);
     });
 
+    // UPDATE QUANTITY OF SINGLE ITEM
+    app.patch("/items/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const { quantity } = req.body;
+      const item = await items.updateOne(
+        { _id: ObjectId(id) },
+        { $set: { quantity } }
+      );
+      res.send(item);
+    });
+
     // TOP ITEMS
     app.get("/topitems", async (req, res) => {
       const allItems = await items
