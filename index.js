@@ -52,9 +52,20 @@ const run = async () => {
     });
 
     // ALL ITEMS
-    app.get("/items", async (req, res) => {
-      const items = await items.find({}).toArray();
-      res.send(items);
+    app.get("/topitems", async (req, res) => {
+      const allItems = await items.find({}).limit(6).toArray();
+      res.send(allItems);
+    });
+
+    // ALL ITEMS
+    app.get("/items", verifyToken, async (req, res) => {
+      const email = req.authData.email;
+      if (!email) {
+        res.sendStatus(403);
+      } else {
+        const allItems = await items.find({}).toArray();
+        res.send(allItems);
+      }
     });
 
     // ADD ITEM
