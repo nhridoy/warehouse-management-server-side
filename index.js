@@ -108,6 +108,19 @@ const run = async () => {
       }
     });
 
+    // ITEM SUMMERY
+    app.get("/itemsummary", async (req, res) => {
+      const allItems = await items.find({}).toArray();
+      const totalItems = allItems.length;
+      const totalQuantity = allItems.reduce((acc, item) => {
+        return acc + item.quantity;
+      }, 0);
+      const totalValue = allItems.reduce((acc, item) => {
+        return acc + item.quantity * item.price;
+      }, 0);
+      res.send({ totalItems, totalQuantity, totalValue });
+    });
+
     // ADD ITEM
     app.post("/items", verifyToken, async (req, res) => {
       const email = req.authData.email;
