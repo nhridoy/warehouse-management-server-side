@@ -9,6 +9,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const verifyToken = (req, res, next) => {
+  const bearerHeader = req.headers["authorization"];
+  if (typeof bearerHeader !== "undefined") {
+    const bearer = bearerHeader.split(" ");
+    const bearerToken = bearer[1];
+    jwt.verify(bearerToken, process.env.SECRET, (err, authData) => {
+      if (err) {
+        res.sendStatus(403);
+      } else {
+        req.authData = authData;
+      }
+    });
+  } else {
+    res.sendStatus(403);
+  }
+  next();
+};
+
 const PORT = process.env.PORT || 5000;
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tsoia.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
@@ -24,11 +42,6 @@ const run = async () => {
 
     const items = client.db("myVentory").collection("items");
 
-    app.get("/items", async (req, res) => {
-      const items = await items.find({}).toArray();
-      res.send(items);
-    });
-
     // JWT TOKEN
     app.post("/login", async (req, res) => {
       const { email } = req.body;
@@ -38,9 +51,17 @@ const run = async () => {
       res.send({ token });
     });
 
-    app.post("/items", async (req, res) => {
+    // ALL ITEMS
+    app.get("/items", async (req, res) => {
+      const items = await items.find({}).toArray();
+      res.send(items);
+    });
+
+    // ADD ITEM
+    app.post("/items", verifyToken, async (req, res) => {
+      const email = req.authData.email;
       const item = req.body;
-      await items.insertOne(item);
+      await items.insertOne((item.email = email));
       res.send(item);
     });
 
