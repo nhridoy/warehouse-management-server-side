@@ -58,6 +58,13 @@ const run = async () => {
       res.send(item);
     });
 
+    // DELETE SINGLE ITEM
+    app.delete("/items/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const item = await items.deleteOne({ _id: ObjectId(id) });
+      res.send(item);
+    });
+
     // TOP ITEMS
     app.get("/topitems", async (req, res) => {
       const allItems = await items
