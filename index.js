@@ -53,7 +53,11 @@ const run = async () => {
 
     // ALL ITEMS
     app.get("/topitems", async (req, res) => {
-      const allItems = await items.find({}).limit(6).toArray();
+      const allItems = await items
+        .find({})
+        .sort("_id", "descending")
+        .limit(6)
+        .toArray();
       res.send(allItems);
     });
 
