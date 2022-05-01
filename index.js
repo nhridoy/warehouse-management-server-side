@@ -60,9 +60,14 @@ const run = async () => {
     // ADD ITEM
     app.post("/items", verifyToken, async (req, res) => {
       const email = req.authData.email;
-      const item = req.body;
-      await items.insertOne((item.email = email));
-      res.send(item);
+      if (!email) {
+        res.sendStatus(403);
+      } else {
+        const item = req.body;
+        item.email = email;
+        await items.insertOne(item);
+        res.send(item);
+      }
     });
 
     console.log("Connected to MongoDB");
