@@ -19,12 +19,12 @@ const verifyToken = (req, res, next) => {
         res.sendStatus(403);
       } else {
         req.authData = authData;
+        next();
       }
     });
   } else {
     res.sendStatus(403);
   }
-  next();
 };
 
 const PORT = process.env.PORT || 5000;
